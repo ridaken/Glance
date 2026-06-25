@@ -36,7 +36,9 @@ export function ResultsList({
   return (
     <div
       ref={parentRef}
-      className="glance-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain"
+      // Right gutter (`mr-2.5`) insets the scrollbar from the viewport edge so it
+      // isn't flush against the page's own scrollbar and is easy to grab.
+      className="glance-scroll mr-2.5 min-h-0 flex-1 overflow-y-auto overscroll-contain"
       role="listbox"
       aria-label="Search results"
     >

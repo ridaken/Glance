@@ -78,10 +78,12 @@ export function Panel({
       } else {
         controller.runNow();
       }
-    } else if (e.key === 'ArrowDown' && e.altKey) {
+    } else if (e.key === 'ArrowDown') {
+      if (state.total === 0) return;
       e.preventDefault();
       controller.next();
-    } else if (e.key === 'ArrowUp' && e.altKey) {
+    } else if (e.key === 'ArrowUp') {
+      if (state.total === 0) return;
       e.preventDefault();
       controller.prev();
     }
@@ -190,18 +192,14 @@ export function Panel({
           <input
             ref={inputRef}
             value={state.query}
-            list="glance-history"
             spellCheck={false}
             autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
             placeholder="Find in page…"
             onChange={(e) => controller.setQuery(e.target.value)}
             className="h-8 min-w-0 flex-1 bg-transparent text-[0.9375em] text-[var(--g-fg)] outline-none placeholder:text-[var(--g-muted)]"
           />
-          <datalist id="glance-history">
-            {history.map((h) => (
-              <option key={h} value={h} />
-            ))}
-          </datalist>
           <button
             type="button"
             aria-label="Close"
