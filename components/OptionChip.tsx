@@ -27,7 +27,7 @@ export function OptionChip({
       disabled={disabled}
       onClick={onToggle}
       className={cn(
-        'flex h-7 w-7 items-center justify-center rounded-md text-[13px] font-medium transition-colors',
+        'flex h-7 w-7 items-center justify-center rounded-md text-[0.8125em] font-medium transition-colors',
         'text-[var(--g-muted)] hover:bg-[var(--g-row-hover)]',
         active &&
           'bg-[var(--g-accent)] text-[var(--g-accent-fg)] hover:bg-[var(--g-accent)]',

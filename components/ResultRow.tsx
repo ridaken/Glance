@@ -26,13 +26,13 @@ export const ResultRow = memo(function ResultRow({
       aria-selected={active}
       onClick={() => onSelect(index)}
       className={cn(
-        'flex w-full gap-2 px-3 py-2 text-left text-[13px] leading-snug',
+        'flex w-full gap-2 px-3 py-2 text-left text-[0.8125em] leading-snug',
         'border-l-2 border-transparent transition-colors',
         'hover:bg-[var(--g-row-hover)]',
         active && 'border-l-[var(--g-accent)] bg-[var(--g-row-active)]',
       )}
     >
-      <span className="mt-px w-7 shrink-0 text-right text-[11px] tabular-nums text-[var(--g-muted)]">
+      <span className="mt-px w-7 shrink-0 text-right text-[0.6875em] tabular-nums text-[var(--g-muted)]">
         {index + 1}
       </span>
       <span className="min-w-0 break-words text-[var(--g-fg)]">

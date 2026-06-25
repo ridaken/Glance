@@ -4,6 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Glance</title>
+    <!-- Critical first-paint styles so the popup never flashes white before React
+         mounts (especially noticeable in dark mode). -->
+    <style>
+      :root { color-scheme: light dark; }
+      html, body { margin: 0; }
+      body {
+        background: #ffffff;
+        color: #1a1c1e;
+        font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      }
+      @media (prefers-color-scheme: dark) {
+        body { background: #181a1e; color: #e8eaed; }
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

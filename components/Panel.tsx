@@ -10,25 +10,46 @@ import {
 } from 'lucide-react';
 import type { SearchController } from '@/lib/search/controller';
 import { useSearchState } from '@/hooks/useSearchState';
-import { historyItem, pushHistory } from '@/lib/settings';
-import { PANEL_WIDTH } from '@/lib/constants';
+import { clampPanelWidth, historyItem, pushHistory } from '@/lib/settings';
 import { cn } from '@/lib/utils';
 import { OptionChip } from './OptionChip';
 import { ResultsList } from './ResultsList';
 import { ScrollbarMarkers } from './ScrollbarMarkers';
+import { EmptyState } from './EmptyState';
 
 interface PanelProps {
   controller: SearchController;
   open: boolean;
   dark: boolean;
+  /** UI scale multiplier (drives `--g-scale`). */
+  scale: number;
+  /** Current panel width in px. */
+  width: number;
+  /** Live width updates while dragging the resize handle. */
+  onResize: (width: number) => void;
+  /** Final width when the resize drag ends (persist point). */
+  onResizeEnd: (width: number) => void;
   onClose: () => void;
   onExited: () => void;
 }
 
-export function Panel({ controller, open, dark, onClose, onExited }: PanelProps) {
+export function Panel({
+  controller,
+  open,
+  dark,
+  scale,
+  width,
+  onResize,
+  onResizeEnd,
+  onClose,
+  onExited,
+}: PanelProps) {
   const state = useSearchState(controller);
   const inputRef = useRef<HTMLInputElement>(null);
   const [history, setHistory] = useState<string[]>([]);
+  const [dragging, setDragging] = useState(false);
+  const widthRef = useRef(width);
+  widthRef.current = width;
 
   // Focus & select the input whenever the panel opens.
   useEffect(() => {
@@ -66,12 +87,43 @@ export function Panel({ controller, open, dark, onClose, onExited }: PanelProps)
     }
   };
 
+  // --- Drag-to-resize (handle on the panel's left edge) --------------------
+  const startResize = (e: React.PointerEvent) => {
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDragging(true);
+  };
+  const moveResize = (e: React.PointerEvent) => {
+    if (!dragging) return;
+    const w = clampPanelWidth(window.innerWidth - e.clientX, window.innerWidth);
+    widthRef.current = w;
+    onResize(w);
+  };
+  const endResize = (e: React.PointerEvent) => {
+    if (!dragging) return;
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      // Pointer may already be released.
+    }
+    setDragging(false);
+    onResizeEnd(widthRef.current);
+  };
+
+  // Run a recent search from the empty state.
+  const runRecent = (term: string) => {
+    controller.setQuery(term);
+    controller.runNow();
+    inputRef.current?.focus();
+  };
+
   const { options } = state;
   const position = state.total > 0 ? state.currentIndex + 1 : 0;
 
   return (
     <div
       className={cn('glance-root', dark && 'dark')}
+      style={{ ['--g-scale' as string]: scale }}
       onKeyDown={handleKeyDown}
     >
       {open && (
@@ -79,6 +131,7 @@ export function Panel({ controller, open, dark, onClose, onExited }: PanelProps)
           controller={controller}
           count={state.total}
           currentIndex={state.currentIndex}
+          width={width}
           onSelect={(i) => controller.goTo(i)}
         />
       )}
@@ -97,7 +150,7 @@ export function Panel({ controller, open, dark, onClose, onExited }: PanelProps)
           top: 0,
           right: 0,
           bottom: 0,
-          width: PANEL_WIDTH,
+          width,
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -115,6 +168,22 @@ export function Panel({ controller, open, dark, onClose, onExited }: PanelProps)
           open ? 'glance-panel-enter' : 'glance-panel-exit',
         )}
       >
+        {/* Drag-to-resize handle on the left edge. */}
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize panel"
+          title="Drag to resize"
+          onPointerDown={startResize}
+          onPointerMove={moveResize}
+          onPointerUp={endResize}
+          onPointerCancel={endResize}
+          className={cn(
+            'absolute inset-y-0 left-0 z-[3] w-1.5 cursor-ew-resize touch-none transition-colors',
+            dragging ? 'bg-[var(--g-accent)]' : 'hover:bg-[var(--g-border)]',
+          )}
+        />
+
         {/* Search row */}
         <div className="flex items-center gap-2 px-3 pt-3">
           <Search className="h-4 w-4 shrink-0 text-[var(--g-muted)]" />
@@ -126,7 +195,7 @@ export function Panel({ controller, open, dark, onClose, onExited }: PanelProps)
             autoComplete="off"
             placeholder="Find in page…"
             onChange={(e) => controller.setQuery(e.target.value)}
-            className="h-8 min-w-0 flex-1 bg-transparent text-[15px] text-[var(--g-fg)] outline-none placeholder:text-[var(--g-muted)]"
+            className="h-8 min-w-0 flex-1 bg-transparent text-[0.9375em] text-[var(--g-fg)] outline-none placeholder:text-[var(--g-muted)]"
           />
           <datalist id="glance-history">
             {history.map((h) => (
@@ -177,12 +246,12 @@ export function Panel({ controller, open, dark, onClose, onExited }: PanelProps)
             label="Ignore accents"
             title="Ignore accents (café = cafe)"
           >
-            <span className="text-[15px] leading-none">á</span>
+            <span className="text-[0.9375em] leading-none">á</span>
           </OptionChip>
 
           <div className="ml-auto flex items-center gap-1">
             <span
-              className="min-w-[64px] text-right text-[12px] tabular-nums text-[var(--g-muted)]"
+              className="min-w-[4em] text-right text-[0.75em] tabular-nums text-[var(--g-muted)]"
               aria-hidden
             >
               {state.status === 'searching'
@@ -217,28 +286,35 @@ export function Panel({ controller, open, dark, onClose, onExited }: PanelProps)
         </div>
 
         {state.error && (
-          <div className="border-t border-[var(--g-border)] px-3 py-2 text-[12px] text-red-500">
+          <div className="border-t border-[var(--g-border)] px-3 py-2 text-[0.75em] text-red-500">
             Invalid regex: {state.error}
           </div>
         )}
 
         {state.capped && (
-          <div className="border-t border-[var(--g-border)] px-3 py-1.5 text-[11px] text-[var(--g-muted)]">
+          <div className="border-t border-[var(--g-border)] px-3 py-1.5 text-[0.6875em] text-[var(--g-muted)]">
             Showing the first {state.total.toLocaleString()} matches.
           </div>
         )}
 
-        {/* Results */}
-        {state.total > 0 && (
-          <div className="flex min-h-0 flex-1 flex-col border-t border-[var(--g-border)]">
+        {/* Results, or the branded empty state when there are none. */}
+        <div className="flex min-h-0 flex-1 flex-col border-t border-[var(--g-border)]">
+          {state.total > 0 ? (
             <ResultsList
               controller={controller}
               matches={state.matches}
               currentIndex={state.currentIndex}
               onSelect={(i) => controller.goTo(i)}
             />
-          </div>
-        )}
+          ) : (
+            <EmptyState
+              history={history}
+              query={state.query}
+              noMatches={state.status === 'done' && state.query.length > 0}
+              onPick={runRecent}
+            />
+          )}
+        </div>
 
         {/* Screen-reader live region for match counts. */}
         <div role="status" aria-live="polite" className="sr-only">

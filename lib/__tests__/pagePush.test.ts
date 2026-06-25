@@ -19,12 +19,12 @@ afterEach(() => {
 describe('pagePush', () => {
   it('reserves the panel width on the page root', () => {
     expect(el().style.marginRight).toBe('');
-    applyPagePush();
+    applyPagePush(380);
     expect(el().style.marginRight).toBe('380px');
   });
 
   it('restores the original margin on remove', () => {
-    applyPagePush();
+    applyPagePush(380);
     removePagePush();
     expect(el().style.marginRight).toBe(''); // restored synchronously
     vi.runAllTimers();
@@ -33,7 +33,7 @@ describe('pagePush', () => {
 
   it('preserves a pre-existing inline margin', () => {
     el().style.marginRight = '12px';
-    applyPagePush();
+    applyPagePush(380);
     expect(el().style.marginRight).toBe('380px');
     removePagePush();
     expect(el().style.marginRight).toBe('12px');
@@ -46,8 +46,13 @@ describe('pagePush', () => {
   });
 
   it('is idempotent across repeated applies', () => {
-    applyPagePush();
-    applyPagePush();
+    applyPagePush(380);
+    applyPagePush(380);
     expect(el().style.marginRight).toBe('380px');
+  });
+
+  it('reflects the requested width', () => {
+    applyPagePush(520);
+    expect(el().style.marginRight).toBe('520px');
   });
 });

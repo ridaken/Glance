@@ -2,12 +2,15 @@ import { useEffect, useState } from 'react';
 import { browser } from 'wxt/browser';
 import {
   defaultSettings,
+  resolveScale,
   settingsItem,
   type GlanceSettings,
+  type TextSize,
   type ThemePref,
 } from '@/lib/settings';
 import { TOGGLE_MESSAGE } from '@/lib/messaging';
 import type { SearchOptions } from '@/lib/search/types';
+import { Logo } from '@/components/Logo';
 
 const QUICK_SHORTCUTS = ['Ctrl+Shift+F', 'Alt+Shift+F', 'Ctrl+Shift+G', 'Ctrl+Shift+Y'];
 
@@ -109,9 +112,13 @@ export default function OptionsApp() {
   return (
     <div
       className={`glance-root ${dark ? 'dark' : ''} min-h-screen bg-[var(--g-elevated)] text-[var(--g-fg)]`}
+      style={{ ['--g-scale' as string]: resolveScale(settings.textSize) }}
     >
       <div className="mx-auto max-w-xl px-6 py-10">
-        <h1 className="text-2xl font-semibold">Glance</h1>
+        <div className="flex items-center gap-2">
+          <Logo size={28} />
+          <h1 className="text-2xl font-semibold">Glance</h1>
+        </div>
         <p className="mt-1 text-sm text-[var(--g-muted)]">
           Find in page, reimagined. Configure behavior below — changes save
           automatically.{' '}
@@ -234,6 +241,9 @@ export default function OptionsApp() {
               </span>
             </div>
           </Row>
+        </Section>
+
+        <Section title="Appearance">
           <Row label="Theme">
             <select
               value={settings.theme}
@@ -243,6 +253,21 @@ export default function OptionsApp() {
               <option value="auto">Auto (system)</option>
               <option value="light">Light</option>
               <option value="dark">Dark</option>
+            </select>
+          </Row>
+          <Row
+            label="Text size"
+            hint="Scales the panel, popup, and this page. Auto enlarges on high-resolution (1440p+) displays."
+          >
+            <select
+              value={settings.textSize}
+              onChange={(e) => update({ textSize: e.target.value as TextSize })}
+              className="rounded-md border border-[var(--g-border)] bg-[var(--g-surface-solid)] px-2 py-1 text-sm"
+            >
+              <option value="auto">Auto</option>
+              <option value="default">Default</option>
+              <option value="large">Large</option>
+              <option value="larger">Larger</option>
             </select>
           </Row>
         </Section>
@@ -330,7 +355,7 @@ function Toggle({
     >
       <span
         className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-          checked ? 'translate-x-[22px]' : 'translate-x-0.5'
+          checked ? 'translate-x-[1.375em]' : 'translate-x-0.5'
         }`}
       />
     </button>

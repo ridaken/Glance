@@ -1,5 +1,7 @@
 # Glance
 
+[![CI](https://github.com/ridaken/Glance/actions/workflows/ci.yml/badge.svg)](https://github.com/ridaken/Glance/actions/workflows/ci.yml)
+
 Find in page, reimagined. Glance replaces the browser's bare Ctrl+F with a sleek
 slide-in panel that lists **every match with surrounding context**, so you can tell
 the right result from the wrong one at a glance — then click to jump to it.
@@ -45,10 +47,17 @@ npm run build        # production build -> .output/chrome-mv3
 npm run build:firefox
 npm test             # unit tests (matcher + walker)
 npm run compile      # typecheck
+npm run icons        # regenerate public/icon/*.png from assets/logo.svg
 ```
 
 Load the unpacked build from `.output/chrome-mv3` via `chrome://extensions`
 (Developer mode → Load unpacked), or `.output/firefox-mv2` via `about:debugging`.
+
+> **Measuring real performance:** the `dev`/`dev:firefox` runners serve **unminified
+> React and recompile Tailwind on every page open**, so the options/popup feel slow
+> there. To judge actual speed, run `npm run build:firefox` and load
+> `.output/firefox-mv2/manifest.json` via `about:debugging → This Firefox → Load
+> Temporary Add-on` — the optimized build paints instantly.
 
 ## Architecture
 
