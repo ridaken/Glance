@@ -11,7 +11,22 @@
  */
 .glance-root {
   font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  font-size: 16px;
+  /* `--g-scale` (set inline on each root) drives a single, uniform UI scale.
+   * `--spacing` is redefined in `em` so Tailwind spacing/size utilities scale with
+   * our font-size — and resolve against *our* root, not the page's (important inside
+   * the content-script Shadow DOM, where `rem` would otherwise leak the page's root
+   * font-size). */
+  --g-scale: 1;
+  --spacing: 0.25em;
+  /* Font-size utilities (text-xs … text-2xl) in `em` so they scale too. Default
+   * line-heights are unitless ratios, so they follow font-size automatically. */
+  --text-xs: 0.75em;
+  --text-sm: 0.875em;
+  --text-base: 1em;
+  --text-lg: 1.125em;
+  --text-xl: 1.25em;
+  --text-2xl: 1.5em;
+  font-size: calc(16px * var(--g-scale));
   line-height: 1.5;
   letter-spacing: normal;
   text-align: left;

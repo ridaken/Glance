@@ -1,4 +1,3 @@
-import { PANEL_WIDTH } from './constants';
 import { prefersReducedMotion } from './search/scroll';
 
 /**
@@ -16,7 +15,12 @@ const TRANSITION = 'margin-right 220ms cubic-bezier(0.22, 1, 0.36, 1)';
 let original: { marginRight: string; transition: string } | null = null;
 let restoreTimer: ReturnType<typeof setTimeout> | null = null;
 
-export function applyPagePush(): void {
+/**
+ * @param width  Current panel width in px (the margin to reserve).
+ * @param animate Whether to animate the reflow. Pass `false` during a live resize
+ *   drag so the page tracks the panel without transition lag.
+ */
+export function applyPagePush(width: number, animate = true): void {
   const el = document.documentElement;
   // Save the page's own inline values once so we can restore them exactly.
   if (!original) {
@@ -26,8 +30,8 @@ export function applyPagePush(): void {
     clearTimeout(restoreTimer);
     restoreTimer = null;
   }
-  el.style.transition = prefersReducedMotion() ? original.transition : TRANSITION;
-  el.style.marginRight = `${PANEL_WIDTH}px`;
+  el.style.transition = animate && !prefersReducedMotion() ? TRANSITION : original.transition;
+  el.style.marginRight = `${width}px`;
 }
 
 export function removePagePush(): void {

@@ -1,0 +1,26 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Glance">
+  <defs>
+    <linearGradient id="glance-bg" x1="16" y1="12" x2="112" y2="116" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffb43c"/>
+      <stop offset="0.55" stop-color="#f59000"/>
+      <stop offset="1" stop-color="#e07400"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded-square app tile -->
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="url(#glance-bg)"/>
+
+  <!-- Magnifier: lens + handle, white on the orange tile -->
+  <g stroke="#ffffff" stroke-linecap="round" fill="none">
+    <!-- Lens ring -->
+    <circle cx="54" cy="54" r="25" stroke-width="9"/>
+    <!-- Handle -->
+    <line x1="72.5" y1="72.5" x2="92" y2="92" stroke-width="11"/>
+  </g>
+
+  <!-- Lines of text "in context" inside the lens; the middle one is the match -->
+  <g stroke-linecap="round">
+    <line x1="44" y1="48" x2="66" y2="48" stroke="#ffffff" stroke-opacity="0.55" stroke-width="4.5"/>
+    <line x1="44" y1="60" x2="64" y2="60" stroke="#ffffff" stroke-width="5.5"/>
+  </g>
+</svg>

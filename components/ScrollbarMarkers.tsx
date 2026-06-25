@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import type { SearchController } from '@/lib/search/controller';
-import { PANEL_WIDTH } from '@/lib/constants';
 
 interface ScrollbarMarkersProps {
   controller: SearchController;
   count: number;
   currentIndex: number;
+  /** Width of the docked panel, so the rail sits just left of it. */
+  width: number;
   onSelect: (index: number) => void;
 }
 
@@ -18,6 +19,7 @@ export function ScrollbarMarkers({
   controller,
   count,
   currentIndex,
+  width,
   onSelect,
 }: ScrollbarMarkersProps) {
   const [fractions, setFractions] = useState<number[]>([]);
@@ -35,7 +37,7 @@ export function ScrollbarMarkers({
   return (
     <div
       className="pointer-events-auto fixed top-0 z-[1] h-screen w-2.5"
-      style={{ right: PANEL_WIDTH }}
+      style={{ right: width }}
       aria-hidden
     >
       {fractions.map((f, i) => (

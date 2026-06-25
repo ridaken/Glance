@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { SearchController } from '@/lib/search/controller';
-import { settingsItem, type ThemePref } from '@/lib/settings';
+import {
+  clampPanelWidth,
+  resolveScale,
+  settingsItem,
+  type ThemePref,
+} from '@/lib/settings';
 import { applyPagePush, removePagePush } from '@/lib/pagePush';
 import { Panel } from '@/components/Panel';
 
@@ -28,8 +33,15 @@ export default function App({ registerToggle }: AppProps) {
   const [theme, setTheme] = useState<ThemePref>('auto');
   const [dark, setDark] = useState(false);
   const [pushPage, setPushPage] = useState(true);
+  const [scale, setScale] = useState(1);
+  const [width, setWidth] = useState(() =>
+    clampPanelWidth(380, typeof window !== 'undefined' ? window.innerWidth : 1280),
+  );
+  // True only while the user is actively dragging the resize handle, so the
+  // page-push reflow tracks the panel instantly (no transition lag) during drag.
+  const draggingRef = useRef(false);
 
-  // Load persisted settings into the controller + theme.
+  // Load persisted settings into the controller + theme + scale + width.
   useEffect(() => {
     let active = true;
     void settingsItem.getValue().then((s) => {
@@ -38,11 +50,16 @@ export default function App({ registerToggle }: AppProps) {
       controller.setOptions(s.defaultOptions);
       setTheme(s.theme);
       setPushPage(s.pushPage);
+      setScale(resolveScale(s.textSize));
+      setWidth(clampPanelWidth(s.panelWidth, window.innerWidth));
     });
     const unwatch = settingsItem.watch((s) => {
       controller.debounceMs = s.debounceMs;
       setTheme(s.theme);
       setPushPage(s.pushPage);
+      setScale(resolveScale(s.textSize));
+      // Don't fight an in-progress drag with an echoed sync update.
+      if (!draggingRef.current) setWidth(clampPanelWidth(s.panelWidth, window.innerWidth));
     });
     return () => {
       active = false;
@@ -62,6 +79,21 @@ export default function App({ registerToggle }: AppProps) {
 
   const close = useCallback(() => setOpen(false), []);
 
+  // Live width update during a drag: reflow the page with it, no transition.
+  const handleResize = useCallback((next: number) => {
+    draggingRef.current = true;
+    setWidth(next);
+  }, []);
+
+  // Drag finished: clear the dragging flag and persist the chosen width.
+  const handleResizeEnd = useCallback((next: number) => {
+    draggingRef.current = false;
+    setWidth(next);
+    void settingsItem.getValue().then((s) =>
+      settingsItem.setValue({ ...s, panelWidth: next }),
+    );
+  }, []);
+
   // Toggle from background command / icon / Ctrl+F. Keep the handler trivial:
   // flip `open` only, and let effects derive mount/visibility + cleanup.
   useEffect(() => {
@@ -75,10 +107,11 @@ export default function App({ registerToggle }: AppProps) {
   }, [open, controller]);
 
   // Reserve page space for the dock when open (unless the user prefers overlay).
+  // Re-runs as the width changes during a drag; skip the animation mid-drag.
   useEffect(() => {
-    if (open && pushPage) applyPagePush();
+    if (open && pushPage) applyPagePush(width, !draggingRef.current);
     else removePagePush();
-  }, [open, pushPage]);
+  }, [open, pushPage, width]);
 
   useEffect(() => {
     return () => {
@@ -94,6 +127,10 @@ export default function App({ registerToggle }: AppProps) {
       controller={controller}
       open={open}
       dark={dark}
+      scale={scale}
+      width={width}
+      onResize={handleResize}
+      onResizeEnd={handleResizeEnd}
       onClose={close}
       onExited={() => setRender(false)}
     />

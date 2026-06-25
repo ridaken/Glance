@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Search } from 'lucide-react';
 import { browser } from 'wxt/browser';
 import { TOGGLE_MESSAGE } from '@/lib/messaging';
+import { resolveScale, settingsItem } from '@/lib/settings';
+import { Logo } from '@/components/Logo';
 
 const QUICK_SHORTCUTS = ['Ctrl+Shift+F', 'Alt+Shift+F', 'Ctrl+Shift+G', 'Ctrl+Shift+Y'];
 
@@ -21,11 +22,15 @@ function isDark(): boolean {
 export default function PopupApp() {
   const [shortcut, setShortcut] = useState('');
   const [msg, setMsg] = useState('');
+  // Resolve `auto` immediately from the screen so first paint is correctly sized;
+  // refine from the stored preference once it loads.
+  const [scale, setScale] = useState(() => resolveScale('auto'));
 
   useEffect(() => {
     void browser.commands.getAll().then((cmds) => {
       setShortcut(cmds.find((c) => c.name === 'toggle-glance')?.shortcut ?? '');
     });
+    void settingsItem.getValue().then((s) => setScale(resolveScale(s.textSize)));
   }, []);
 
   // The popup's active tab is the underlying web page, so this is a clean,
@@ -63,15 +68,16 @@ export default function PopupApp() {
     <div
       className={`glance-root ${isDark() ? 'dark' : ''}`}
       style={{
-        width: 280,
+        ['--g-scale' as string]: scale,
+        width: Math.round(280 * scale),
         background: isDark() ? '#181a1e' : '#ffffff',
         color: isDark() ? '#e8eaed' : '#1a1c1e',
-        padding: 14,
+        padding: '0.875em',
         fontFamily: 'ui-sans-serif, system-ui, sans-serif',
       }}
     >
       <div className="mb-3 flex items-center gap-2">
-        <Search className="h-4 w-4 text-[var(--g-accent)]" />
+        <Logo size={20} />
         <span className="text-sm font-semibold">Glance</span>
       </div>
 
@@ -83,7 +89,7 @@ export default function PopupApp() {
         Find on this page
       </button>
 
-      <div className="mt-3 text-[11px] text-[var(--g-muted)]">
+      <div className="mt-3 text-[0.6875em] text-[var(--g-muted)]">
         Keyboard shortcut: <strong>{shortcut || 'unset'}</strong>
       </div>
       <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -92,7 +98,7 @@ export default function PopupApp() {
             key={s}
             type="button"
             onClick={() => void rebind(s)}
-            className={`rounded-md border px-1.5 py-0.5 text-[11px] ${
+            className={`rounded-md border px-1.5 py-0.5 text-[0.6875em] ${
               s === shortcut
                 ? 'border-[var(--g-accent)] text-[var(--g-accent)]'
                 : 'border-[var(--g-border)] text-[var(--g-muted)]'
@@ -103,7 +109,7 @@ export default function PopupApp() {
         ))}
       </div>
 
-      {msg && <p className="mt-2 text-[11px] text-[var(--g-muted)]">{msg}</p>}
+      {msg && <p className="mt-2 text-[0.6875em] text-[var(--g-muted)]">{msg}</p>}
 
       <button
         type="button"
