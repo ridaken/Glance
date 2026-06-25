@@ -1,0 +1,77 @@
+@import 'tailwindcss';
+
+/* Enable the `dark:` variant via a .dark class on our root container. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Insulate from page styles. Inherited properties (font, color, line-height)
+ * cross the shadow boundary, so re-establish a known baseline — scoped to our
+ * own root rather than nuking the host with `all: initial` (which can collapse
+ * the shadow host's box).
+ */
+.glance-root {
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-align: left;
+  text-transform: none;
+  font-style: normal;
+  font-weight: 400;
+}
+
+/* Light/dark design tokens for the panel. */
+.glance-root {
+  --g-surface: rgba(255, 255, 255, 0.92);
+  --g-surface-solid: #ffffff;
+  --g-elevated: #f6f7f9;
+  --g-fg: #1a1c1e;
+  --g-muted: #6b7280;
+  --g-border: rgba(0, 0, 0, 0.10);
+  --g-accent: #f59000;
+  --g-accent-fg: #ffffff;
+  --g-row-hover: rgba(0, 0, 0, 0.045);
+  --g-row-active: rgba(245, 144, 0, 0.14);
+  --g-shadow: 0 8px 40px rgba(0, 0, 0, 0.22);
+}
+
+.glance-root.dark {
+  --g-surface: rgba(24, 26, 30, 0.92);
+  --g-surface-solid: #181a1e;
+  --g-elevated: #23262c;
+  --g-fg: #e8eaed;
+  --g-muted: #9aa0a6;
+  --g-border: rgba(255, 255, 255, 0.10);
+  --g-accent: #ff9f1a;
+  --g-accent-fg: #1a1c1e;
+  --g-row-hover: rgba(255, 255, 255, 0.06);
+  --g-row-active: rgba(255, 159, 26, 0.18);
+  --g-shadow: 0 8px 40px rgba(0, 0, 0, 0.55);
+}
+
+@keyframes glance-slide-in {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes glance-slide-out {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+
+.glance-panel-enter { animation: glance-slide-in 220ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.glance-panel-exit { animation: glance-slide-out 180ms cubic-bezier(0.55, 0, 0.65, 0.2) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .glance-panel-enter,
+  .glance-panel-exit { animation: none; }
+}
+
+/* Custom thin scrollbar inside the results list. */
+.glance-scroll::-webkit-scrollbar { width: 10px; }
+.glance-scroll::-webkit-scrollbar-thumb {
+  background: var(--g-border);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
