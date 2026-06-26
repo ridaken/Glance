@@ -1,5 +1,5 @@
 import { browser } from 'wxt/browser';
-import { TOGGLE_MESSAGE } from '@/lib/messaging';
+import { TOGGLE_MESSAGE, isOpenOptionsMessage } from '@/lib/messaging';
 
 export default defineBackground(() => {
   // MV3 exposes `browser.action`; Firefox MV2 only has `browser.browserAction`.
@@ -23,6 +23,11 @@ export default defineBackground(() => {
     if (command === 'toggle-glance') void toggleActiveTab();
   });
 
-  // Fires only if no popup is set; harmless to keep alongside the popup.
+  // Clicking the toolbar icon toggles the panel directly (no popup is set).
   action?.onClicked.addListener(() => void toggleActiveTab());
+
+  // The content-script empty state asks us to open the options page on its behalf.
+  browser.runtime.onMessage.addListener((msg) => {
+    if (isOpenOptionsMessage(msg)) void browser.runtime.openOptionsPage();
+  });
 });

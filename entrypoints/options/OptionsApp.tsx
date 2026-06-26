@@ -134,7 +134,7 @@ export default function OptionsApp() {
                 : 'Current shortcut. Rebind on Chrome via chrome://extensions/shortcuts.'
             }
           >
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <input
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
@@ -182,7 +182,7 @@ export default function OptionsApp() {
             <p className="text-xs text-[var(--g-muted)]">{shortcutMsg}</p>
           )}
 
-          <div className="flex items-center gap-3 border-t border-[var(--g-border)] pt-3">
+          <div className="flex flex-wrap items-center gap-3 border-t border-[var(--g-border)] pt-3">
             <button
               type="button"
               onClick={() => void launchNow()}
@@ -227,7 +227,7 @@ export default function OptionsApp() {
             />
           </Row>
           <Row label="Search debounce" hint="Delay after typing before searching.">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 @md:w-auto">
               <input
                 type="range"
                 min={100}
@@ -235,8 +235,9 @@ export default function OptionsApp() {
                 step={50}
                 value={settings.debounceMs}
                 onChange={(e) => update({ debounceMs: Number(e.target.value) })}
+                className="min-w-0 flex-1 @md:flex-none"
               />
-              <span className="w-14 text-right text-sm tabular-nums">
+              <span className="w-14 shrink-0 text-right text-sm tabular-nums">
                 {settings.debounceMs} ms
               </span>
             </div>
@@ -309,7 +310,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-[var(--g-muted)]">
         {title}
       </h2>
-      <div className="space-y-3 rounded-xl border border-[var(--g-border)] bg-[var(--g-surface-solid)] p-4">
+      <div className="@container space-y-3 rounded-xl border border-[var(--g-border)] bg-[var(--g-surface-solid)] p-4">
         {children}
       </div>
     </section>
@@ -326,12 +327,12 @@ function Row({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-start justify-between gap-4">
-      <div>
+    <div className="flex flex-col gap-1.5 @md:flex-row @md:items-start @md:justify-between @md:gap-4">
+      <div className="@md:flex-1">
         <div className="text-sm font-medium">{label}</div>
         {hint && <div className="mt-0.5 text-xs text-[var(--g-muted)]">{hint}</div>}
       </div>
-      <div className="shrink-0 pt-0.5">{children}</div>
+      <div className="@md:shrink-0 @md:pt-0.5">{children}</div>
     </div>
   );
 }

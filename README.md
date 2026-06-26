@@ -54,7 +54,7 @@ Load the unpacked build from `.output/chrome-mv3` via `chrome://extensions`
 (Developer mode → Load unpacked), or `.output/firefox-mv2` via `about:debugging`.
 
 > **Measuring real performance:** the `dev`/`dev:firefox` runners serve **unminified
-> React and recompile Tailwind on every page open**, so the options/popup feel slow
+> React and recompile Tailwind on every page open**, so the options page feels slow
 > there. To judge actual speed, run `npm run build:firefox` and load
 > `.output/firefox-mv2/manifest.json` via `about:debugging → This Firefox → Load
 > Temporary Add-on` — the optimized build paints instantly.

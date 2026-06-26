@@ -1,3 +1,5 @@
+import { browser } from 'wxt/browser';
+import { OPEN_OPTIONS_MESSAGE } from '@/lib/messaging';
 import { Logo } from './Logo';
 
 interface EmptyStateProps {
@@ -65,6 +67,14 @@ export function EmptyState({ history, query, noMatches, onPick }: EmptyStateProp
         </div>
         <div>Type above to search this page.</div>
       </div>
+
+      <button
+        type="button"
+        onClick={() => void browser.runtime.sendMessage(OPEN_OPTIONS_MESSAGE)}
+        className="text-[0.6875em] text-[var(--g-muted)] underline underline-offset-2 transition-colors hover:text-[var(--g-fg)]"
+      >
+        Open settings
+      </button>
     </div>
   );
 }
