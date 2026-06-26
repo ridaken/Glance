@@ -27,7 +27,7 @@ export const ResultRow = memo(function ResultRow({
       onClick={() => onSelect(index)}
       className={cn(
         'flex w-full gap-2 px-3 py-2 text-left text-[0.8125em] leading-snug',
-        'border-l-2 border-transparent transition-colors',
+        'border-b border-[var(--g-border)] border-l-2 border-l-transparent transition-colors',
         'hover:bg-[var(--g-row-hover)]',
         active && 'border-l-[var(--g-accent)] bg-[var(--g-row-active)]',
       )}

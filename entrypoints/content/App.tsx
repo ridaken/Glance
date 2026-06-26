@@ -106,6 +106,21 @@ export default function App({ registerToggle }: AppProps) {
     else controller.clear();
   }, [open, controller]);
 
+  // Close when the user clicks back onto the page. `composedPath()` crosses the
+  // shadow boundary, so a click on any of our UI (panel, scrollbar rail, resize
+  // handle) contains the `glance-root` wrapper; a click on the page does not.
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: PointerEvent) => {
+      const insideGlance = e
+        .composedPath()
+        .some((n) => n instanceof HTMLElement && n.classList.contains('glance-root'));
+      if (!insideGlance) setOpen(false);
+    };
+    window.addEventListener('pointerdown', onPointerDown, true);
+    return () => window.removeEventListener('pointerdown', onPointerDown, true);
+  }, [open]);
+
   // Reserve page space for the dock when open (unless the user prefers overlay).
   // Re-runs as the width changes during a drag; skip the animation mid-drag.
   useEffect(() => {
