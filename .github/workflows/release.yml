@@ -28,14 +28,23 @@ jobs:
       - name: Zip (Firefox MV2)
         run: npm run zip:firefox
 
+      # A .xpi is the same archive as the Firefox zip, just with the extension
+      # Firefox expects when installing from a file.
+      - name: Copy Firefox zip to .xpi
+        run: for f in .output/glance-*-firefox.zip; do cp "$f" "${f%.zip}.xpi"; done
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: glance-packages
-          path: .output/*.zip
+          path: |
+            .output/*.zip
+            .output/*.xpi
           if-no-files-found: error
 
       - name: Attach packages to the GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: .output/*.zip
+          files: |
+            .output/*.zip
+            .output/*.xpi

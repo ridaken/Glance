@@ -65,6 +65,11 @@ jobs:
       - name: Zip (Firefox MV2)
         run: npm run zip:firefox
 
+      # A .xpi is the same archive as the Firefox zip, just with the extension
+      # Firefox expects when installing from a file.
+      - name: Copy Firefox zip to .xpi
+        run: for f in .output/glance-*-firefox.zip; do cp "$f" "${f%.zip}.xpi"; done
+
       # Maintain a single rolling "latest" pre-release whose assets are the
       # freshest importable packages. Delete + recreate so the `latest` tag
       # always points at the commit that was actually built.
@@ -76,6 +81,8 @@ jobs:
           Importable extension packages, built automatically from the latest commit on main (${GITHUB_SHA:0:7}).
 
           - Firefox (MV2): glance-*-firefox.zip
+          - Firefox (MV2), same package as .xpi: glance-*-firefox.xpi
+            (unsigned, so regular Firefox only loads it as a temporary add-on via about:debugging)
           - Chrome / Chromium (MV3): glance-*-chrome.zip
 
           This pre-release is overwritten on every merge to main.
@@ -87,4 +94,4 @@ jobs:
             --title "Latest main build" \
             --prerelease \
             --notes-file release-notes.md \
-            .output/glance-*-chrome.zip .output/glance-*-firefox.zip
+            .output/glance-*-chrome.zip .output/glance-*-firefox.zip .output/glance-*-firefox.xpi
